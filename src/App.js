@@ -182,7 +182,9 @@ function App() {
                   href={listing.url}
                   rel="noopener noreferrer"
                   onMouseEnter={() => handleListingHover(index)}
-                  onMouseLeave={() => setHoveredIndex(null)}
+                  onMouseLeave={() => {
+                    handleListingHover(null);
+                  }}
                 >
                   <div className="individualListingContainer">
                     <img
