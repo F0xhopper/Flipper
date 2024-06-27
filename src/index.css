@@ -79,6 +79,8 @@ code {
   display: flex;
   flex-wrap: wrap;
   margin-top: 20px;
+  height: 30vh;
+  overflow: auto;
 }
 .individualListingImage {
   border-radius: 20px;
