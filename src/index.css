@@ -47,6 +47,7 @@ code {
   border: 0px;
   color: white;
   font-size: 18px;
+  cursor: pointer;
 }
 .averagePriceContainer {
   display: flex;
@@ -75,13 +76,15 @@ code {
 .listingsDisplayContainer {
   justify-content: center;
   gap: 20px;
-  max-width: 100%;
+
   display: flex;
   flex-wrap: wrap;
-  margin-top: 20px;
   height: 30vh;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
 }
+
 .individualListingImage {
   border-radius: 20px;
   width: 100px;
@@ -93,6 +96,7 @@ code {
   padding: 10px;
   background-color: rgba(244, 244, 244, 0.9);
   border-radius: 20px;
+
   height: 100px;
 }
 .individualListingContainer:hover {
@@ -106,7 +110,7 @@ code {
   flex: 1;
 }
 .individualListingTitleText {
-  width: 226px;
+  width: 100%;
   font-weight: 400;
   margin: 0px;
   font-size: 16px;
@@ -123,6 +127,7 @@ code {
 }
 .individualListLink {
   color: black;
+  width: 23%;
   text-decoration: none;
 }
 .individualListingPriceGreenText {
@@ -142,4 +147,16 @@ code {
   flex-direction: column;
 
   width: 90vw;
+}
+.listingsStatsContainer {
+  display: flex;
+  gap: 20px;
+  flex-direction: row;
+  margin-top: 20px;
+}
+.usefulStatsContainer {
+  width: 500px;
+  height: 500px;
+  background-color: rgba(244, 244, 244, 0.9);
+  border-radius: 20px;
 }

@@ -28,36 +28,71 @@ function App() {
   const [averagePrice, setAveragePrice] = useState(null);
   const [chartData, setChartData] = useState({});
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [soldLastMonth, setSoldLastMonth] = useState(0);
+  const [titleDisplayLength, setTitleDisplayLength] = useState(50); // Default length
+  const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const handleResize = () => {
+      // Adjust title display length based on container width
+      const containerWidth = window.innerWidth; // Adjust this to your specific container width
+      if (containerWidth < 600) {
+        setTitleDisplayLength(20); // Example: show fewer characters on smaller screens
+      } else {
+        setTitleDisplayLength(50); // Default length for larger screens
+      }
+    };
+  });
   const fetchSoldListings = async (query) => {
     try {
       const response = await fetch(
-        `http://localhost:3240/api/ebay?keywords=${encodeURIComponent(
-          searchInput
-        )}`
+        `http://127.0.0.1:5000/scrape?item=${encodeURIComponent(searchInput)}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
+
       const data = await response.json();
-      console.log(data.items);
-      return data.items;
+      console.log(data);
+      return data;
     } catch (error) {
       console.error("Error fetching sold listings:", error);
       return [];
     }
   };
-  const handleSearch = async () => {
-    const soldListings = await fetchSoldListings(searchInput);
-    setListings(soldListings);
 
+  const calculateSoldLastMonth = (listings) => {
+    const currentDate = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(currentDate.getMonth() - 1);
+
+    const recentListings = listings.filter((listing) => {
+      const soldDate = new Date(listing.soldDate);
+      return soldDate > oneMonthAgo;
+    });
+
+    setSoldLastMonth(recentListings.length);
+  };
+
+  const handleSearch = async () => {
+    setLoading(true);
+    const soldListings = await fetchSoldListings(searchInput);
+    setLoading(false);
     if (soldListings.length > 0) {
+      // Filter listings to only include those from the past month
+      soldListings.sort((a, b) => new Date(a.soldDate) - new Date(b.soldDate));
+
+      setListings(soldListings);
+
       const total = soldListings.reduce(
         (sum, item) => sum + parseFloat(item.price),
         0
       );
       const average = total / soldListings.length;
       setAveragePrice(average.toFixed(2));
+
+      // Calculate the number of items sold in the last month
+      calculateSoldLastMonth(soldListings);
 
       // Prepare data for the chart
       const dates = soldListings.map((item) =>
@@ -116,8 +151,10 @@ function App() {
     } else {
       setAveragePrice(null);
       setChartData({});
+      setSoldLastMonth(0);
     }
   };
+
   const handleListingHover = (index) => {
     setHoveredIndex(index);
     setChartData((prevChartData) => ({
@@ -140,6 +177,7 @@ function App() {
       }),
     }));
   };
+
   return (
     <div className="App">
       <div
@@ -158,6 +196,8 @@ function App() {
           Search
         </button>
       </div>
+      {loading && <div className="loadingAnimation">Loading...</div>}
+
       {averagePrice != null && (
         <div className="resultsContainer">
           <div className="averagePriceContainer">
@@ -168,52 +208,63 @@ function App() {
             <h1 className="averagePriceNumberText">
               £{averagePrice ? averagePrice : 0}
             </h1>
-          </div>{" "}
-          <div className="chartContainer">
-            <Line data={chartData} options={{ maintainAspectRatio: false }} />{" "}
           </div>
-          <div className="listingsDisplayContainer">
-            {listings.map((listing, index) => {
-              return (
-                <a
-                  className="individualListLink"
-                  key={index}
-                  target="_blank"
-                  href={listing.url}
-                  rel="noopener noreferrer"
-                  onMouseEnter={() => handleListingHover(index)}
-                  onMouseLeave={() => {
-                    handleListingHover(null);
-                  }}
-                >
-                  <div className="individualListingContainer">
-                    <img
-                      className="individualListingImage"
-                      src={listing.imageUrl || ebayListingExampleImage}
-                      alt={listing.title}
-                    />
-                    <div className="individualListingTextContainer">
-                      <h4 className="individualListingTitleText">
-                        {listing.title.length >= 50
-                          ? `${listing.title.substring(0, 50)}...`
-                          : listing.title}
-                      </h4>
-                      <div>
-                        <div className="individualListingPriceText">
-                          Sold for{" "}
-                          <span className="individualListingPriceGreenText">
-                            £{listing.price}
-                          </span>
-                        </div>
-                        <h4 className="individualListingDateText">
-                          {new Date(listing.soldDate).toLocaleDateString()}
+          <div className="chartContainer">
+            <Line data={chartData} options={{ maintainAspectRatio: false }} />
+          </div>
+          <div className="listingsStatsContainer">
+            <div className="listingsDisplayContainer">
+              {listings.map((listing, index) => {
+                return (
+                  <a
+                    className="individualListLink"
+                    key={index}
+                    target="_blank"
+                    href={listing.url}
+                    rel="noopener noreferrer"
+                    onMouseEnter={() => handleListingHover(index)}
+                    onMouseLeave={() => {
+                      handleListingHover(null);
+                    }}
+                  >
+                    <div className="individualListingContainer">
+                      <img
+                        className="individualListingImage"
+                        src={listing.imageUrl || ebayListingExampleImage}
+                        alt={listing.title}
+                      />
+                      <div className="individualListingTextContainer">
+                        <h4 className="individualListingTitleText">
+                          {listing.title.length >= 50
+                            ? `${listing.title.substring(0, 50)}...`
+                            : listing.title}
                         </h4>
+                        <div>
+                          <div className="individualListingPriceText">
+                            Sold for{" "}
+                            <span className="individualListingPriceGreenText">
+                              £{listing.price}
+                            </span>
+                          </div>
+                          <h4 className="individualListingDateText">
+                            {new Date(listing.soldDate).toLocaleDateString()}
+                          </h4>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </a>
-              );
-            })}
+                  </a>
+                );
+              })}
+            </div>
+            <div className="usefulStatsContainer">
+              {soldLastMonth > 0 && (
+                <div className="soldLastMonthContainer">
+                  <h4>Items Sold in the Last Month:</h4>
+                  <h1>{soldLastMonth}</h1>{" "}
+                  {soldLastMonth > 50 && <span className="fireEmoji">🔥</span>}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
