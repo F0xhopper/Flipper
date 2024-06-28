@@ -31,6 +31,7 @@ function App() {
   const [soldLastMonth, setSoldLastMonth] = useState(0);
   const [titleDisplayLength, setTitleDisplayLength] = useState(50); // Default length
   const [loading, setLoading] = useState(false);
+  const [priceChange, setPriceChange] = useState(null); // State for price change
 
   useEffect(() => {
     const handleResize = () => {
@@ -42,7 +43,13 @@ function App() {
         setTitleDisplayLength(50); // Default length for larger screens
       }
     };
-  });
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Call it once to set the initial value
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const fetchSoldListings = async (query) => {
     try {
       const response = await fetch(
@@ -74,6 +81,14 @@ function App() {
     setSoldLastMonth(recentListings.length);
   };
 
+  const calculateAveragePrice = (listings) => {
+    const total = listings.reduce(
+      (sum, item) => sum + parseFloat(item.price),
+      0
+    );
+    return total / listings.length;
+  };
+
   const handleSearch = async () => {
     setLoading(true);
     const soldListings = await fetchSoldListings(searchInput);
@@ -84,15 +99,29 @@ function App() {
 
       setListings(soldListings);
 
-      const total = soldListings.reduce(
-        (sum, item) => sum + parseFloat(item.price),
-        0
-      );
-      const average = total / soldListings.length;
+      const average = calculateAveragePrice(soldListings);
       setAveragePrice(average.toFixed(2));
 
       // Calculate the number of items sold in the last month
       calculateSoldLastMonth(soldListings);
+
+      // Calculate the initial average price (first 10% of the listings)
+      const initialListings = soldListings.slice(
+        0,
+        Math.ceil(soldListings.length * 0.1)
+      );
+      const initialAverage = calculateAveragePrice(initialListings);
+
+      // Calculate the recent average price (last 10% of the listings)
+      const recentListings = soldListings.slice(
+        -Math.ceil(soldListings.length * 0.1)
+      );
+      const recentAverage = calculateAveragePrice(recentListings);
+
+      // Calculate the price change
+      const priceChange =
+        ((recentAverage - initialAverage) / initialAverage) * 100;
+      setPriceChange(priceChange.toFixed(2));
 
       // Prepare data for the chart
       const dates = soldListings.map((item) =>
@@ -152,6 +181,7 @@ function App() {
       setAveragePrice(null);
       setChartData({});
       setSoldLastMonth(0);
+      setPriceChange(null);
     }
   };
 
@@ -235,8 +265,8 @@ function App() {
                       />
                       <div className="individualListingTextContainer">
                         <h4 className="individualListingTitleText">
-                          {listing.title.length >= 50
-                            ? `${listing.title.substring(0, 50)}...`
+                          {listing.title.length > titleDisplayLength
+                            ? listing.title.slice(0, titleDisplayLength) + "..."
                             : listing.title}
                         </h4>
                         <div>
@@ -259,9 +289,17 @@ function App() {
             <div className="usefulStatsContainer">
               {soldLastMonth > 0 && (
                 <div className="soldLastMonthContainer">
-                  <h4>Items Sold in the Last Month:</h4>
+                  <h4>Total {searchInput} sales in the last month:</h4>
                   <h1>{soldLastMonth}</h1>{" "}
-                  {soldLastMonth > 50 && <span className="fireEmoji">🔥</span>}
+                </div>
+              )}
+              {priceChange != null && (
+                <div className="priceChangeContainer">
+                  <h4>
+                    Price change since{" "}
+                    {new Date(listings[0].soldDate).toLocaleDateString()}:
+                  </h4>
+                  <h1>{priceChange}%</h1>
                 </div>
               )}
             </div>
