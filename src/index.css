@@ -28,7 +28,7 @@ code {
   align-items: center;
 
   flex: 1;
-
+  width: 610px;
   max-width: 800px;
 }
 .searchInput {
@@ -41,43 +41,49 @@ code {
 }
 .searchButton {
   margin: 0px;
-  height: 50px;
-  width: 50%;
+  height: 40px;
+  width: 293px;
   background-color: rgb(0, 115, 203);
   border: 0px;
   color: white;
-  font-size: 18px;
+  font-size: 14px;
+
   cursor: pointer;
   border-radius: 20px;
 }
 .clearButton {
   margin: 0px;
-  height: 50px;
-  width: 50%;
+  height: 40px;
+  width: 293px;
   background-color: rgb(192, 192, 192);
   border: 0px;
   color: white;
-  font-size: 18px;
+  font-size: 14px;
+
   cursor: pointer;
   border-radius: 20px;
 }
 .buttonsContainer {
   display: flex;
-  gap: 10px;
+  margin-top: 10px;
+  gap: 20px;
 }
 .searchAverageContainer {
   display: flex;
   gap: 20px;
 }
+.switchFieldTitleText {
+  margin-top: 0px;
+  color: grey;
+}
 .averagePriceContainer {
   display: flex;
   flex: 1;
-  margin-bottom: 10px;
   background-color: rgba(244, 244, 244, 0.9);
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 10px;
+  padding: 30px;
   border-radius: 20px;
 }
 .averagePriceIntroText {
@@ -93,15 +99,34 @@ code {
   color: rgb(0, 152, 0);
 }
 .listingsDisplayContainer {
-  justify-content: center;
   gap: 20px;
-
   display: flex;
   flex-wrap: wrap;
-  height: 350px;
+  height: 320px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
+}
+
+/* Scrollbar styles */
+.listingsDisplayContainer::-webkit-scrollbar {
+  width: 25px; /* Increased width to accommodate the gap */
+}
+
+.listingsDisplayContainer::-webkit-scrollbar-track {
+  background: white;
+  border-radius: 10px; /* Optional: for rounded track corners */
+}
+
+.listingsDisplayContainer::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 20px;
+  border: 9px solid white; /* Creates the gap around the thumb */
+  min-height: 60px; /* Sets the minimum height of the thumb */
+}
+
+.listingsDisplayContainer::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Thumb hover color */
 }
 
 .individualListingImage {
@@ -111,15 +136,17 @@ code {
 .individualListingContainer {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  gap: 20px;
   padding: 10px;
   background-color: rgba(244, 244, 244, 0.9);
   border-radius: 20px;
-
   height: 100px;
+  transition: border-color 0.3s ease; /* Add transition for smooth hover effect */
+  border: 1px solid rgba(244, 244, 244, 0); /* Initially transparent border */
 }
+
 .individualListingContainer:hover {
-  outline: 1px solid rgb(195, 195, 195);
+  border-color: rgb(195, 195, 195); /* Change border color on hover */
 }
 .individualListingTextContainer {
   display: flex;
@@ -130,13 +157,14 @@ code {
   min-width: 0;
 }
 .individualListingTitleText {
-  font-weight: 400;
-
-  margin: 0px;
-  text-overflow: ellipsis;
-  font-size: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 400;
+  margin: 0px;
+  font-size: 16px;
 }
 .individualListingPriceText {
   margin: 0px;
@@ -154,10 +182,12 @@ code {
 .individualListLink {
   color: black;
   flex: 1 0 calc(24% - 10px); /* Flex-grow, flex-shrink, flex-basis */
-  max-width: calc(24% - 10px);
+  max-width: calc(25% - 10px);
   text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 .individualListingPriceGreenText {
   color: rgb(0, 152, 0) !important;
@@ -181,11 +211,10 @@ code {
   display: flex;
   gap: 20px;
   flex-direction: row;
-  margin-top: 20px;
 }
 .usefulStatsContainer {
   width: 500px;
-  height: 350px;
+  height: 320px;
   background-color: rgba(244, 244, 244, 0.9);
   border-radius: 20px;
 }
@@ -220,35 +249,45 @@ code {
 }
 .searchOptionsContainer {
   display: flex;
-  flex-direction: row;
+  gap: 20px;
+  flex-direction: column;
 }
 .sliderMainContainer {
   display: flex;
   flex-direction: column;
-  margin: 10px;
 }
 .sliderContainer {
+  margin-top: 10px;
   display: flex;
 }
 .sliderRangeText {
-  font-size: 16px;
-  color: gray;
+  font-size: 17px;
+  color: black;
+  margin: 10px;
+  margin-top: 0px;
+  width: 20px;
 }
 .sliderTitleText {
   color: gray;
-  font-size: 20px;
+  font-size: 13px;
+  margin-left: 5px;
+  margin: 0px;
 }
 .sliderTitleTextNumber {
   color: black;
-  font-size: 25px;
+  font-size: 20px;
+}
+.averagePriceAfterFeesNumberText {
+  font-size: 39px;
+  margin: 0px;
+  color: green;
 }
 .slider {
   appearance: none;
-  width: 350px;
+  width: 550px;
   height: 15px;
   background: #d3d3d3; /* Grey background */
 
-  opacity: 0.7;
   transition: opacity 0.15s ease-in-out;
   border-radius: 10px;
 }
@@ -278,14 +317,179 @@ code {
 .searchMainContainer {
   display: flex;
   flex-direction: column;
-  width: 800px;
+  width: 600px;
   background-color: #f7f7f7;
   border-radius: 25px;
+  gap: 20px;
   padding: 25px;
+  height: 390px;
+  justify-content: center;
+  align-items: center;
 }
 .statTitleText {
   color: gray;
 }
 .individualStatContainer {
   margin: 20px;
+}
+
+.listing-type .switch-field {
+  display: flex;
+  height: 35px;
+  overflow: hidden;
+  margin: 0px;
+  flex: 1;
+  margin-top: 10px; /* Adjusted margin for spacing */
+}
+
+.listing-type .switch-field input {
+  position: absolute !important;
+  clip: rect(0, 0, 0, 0);
+  height: 4px;
+  width: 1px;
+  border: 0;
+  overflow: hidden;
+}
+
+.listing-type .switch-field label {
+  background-color: #e4e4e4;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  padding: 8px 16px;
+  margin-right: -1px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  flex: 1;
+  transition: all 0.1s ease-in-out;
+}
+
+.listing-type .switch-field label:hover {
+  cursor: pointer;
+}
+
+.listing-type .switch-field input:checked + label {
+  background-color: rgb(0, 115, 203);
+  color: white;
+  box-shadow: none;
+}
+
+.listing-type .switch-field label:first-of-type {
+  border-radius: 20px 0 0 20px;
+}
+
+.listing-type .switch-field label:last-of-type {
+  border-radius: 0 20px 20px 0;
+}
+
+.seller-type .switch-field-seller {
+  display: flex;
+  height: 35px;
+  overflow: hidden;
+  margin: 0px;
+  flex: 1;
+  margin-top: 10px; /* Adjusted margin for spacing */
+}
+
+.seller-type .switch-field-seller input {
+  position: absolute !important;
+  clip: rect(0, 0, 0, 0);
+  height: 4px;
+  width: 1px;
+  border: 0;
+  overflow: hidden;
+}
+
+.seller-type .switch-field-seller label {
+  background-color: #e4e4e4;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  padding: 8px 16px;
+  margin-right: -1px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  flex: 1;
+  transition: all 0.1s ease-in-out;
+}
+
+.seller-type .switch-field-seller label:hover {
+  cursor: pointer;
+}
+
+.seller-type .switch-field-seller input:checked + label {
+  background-color: rgb(0, 115, 203);
+  color: white;
+  box-shadow: none;
+}
+
+.seller-type .switch-field-seller label:first-of-type {
+  border-radius: 20px 0 0 20px;
+}
+
+.seller-type .switch-field-seller label:last-of-type {
+  border-radius: 0 20px 20px 0;
+}
+.lds-ellipsis {
+  /* change color here */
+  color: #1c4c5b;
+}
+.lds-ellipsis,
+.lds-ellipsis div {
+  box-sizing: border-box;
+}
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33.33333px;
+  width: 13.33333px;
+  height: 13.33333px;
+  border-radius: 50%;
+  background: currentColor;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
 }

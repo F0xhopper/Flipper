@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import logo from "/Users/edenphillips/Desktop/Projects/flipper/src/Images/LogoImage.png";
-import ebayListingExampleImage from "/Users/edenphillips/Desktop/Projects/flipper/src/Images/ebayListingImageExample.png";
 import {
   Chart as ChartJS,
   LineElement,
@@ -35,6 +34,7 @@ function App() {
   const [priceRange, setPriceRange] = useState({ highest: 0, lowest: 0 });
   const [averageSalesPerWeek, setAverageSalesPerWeek] = useState(0);
   const [selectedFormat, setSelectedFormat] = useState("both");
+  const [selectedSellerType, setSelectedSellerType] = useState("Private");
 
   useEffect(() => {
     const handleResize = () => {
@@ -100,6 +100,7 @@ function App() {
     );
     return total / listings.length;
   };
+
   const calculatePriceRange = (listings) => {
     const prices = listings.map((listing) => parseFloat(listing.price));
     const highestPrice = Math.max(...prices);
@@ -121,6 +122,7 @@ function App() {
 
     return (listings.length / weeksDiff).toFixed(2);
   };
+
   const handleClear = () => {
     setSearchInput(""); // Reset search input
     setSliderInput("200"); // Reset slider input
@@ -131,6 +133,7 @@ function App() {
     setPriceRange({ highest: 0, lowest: 0 }); // Reset price range
     setSelectedFormat("both"); // Reset selected format
   };
+
   const handleSearch = async () => {
     setLoading(true);
     const soldListings = await fetchSoldListings(searchInput);
@@ -233,6 +236,26 @@ function App() {
     }));
   };
 
+  // Function to calculate price after fees based on seller type
+  const calculatePriceAfterFees = (price, sellerType) => {
+    if (sellerType === "Business") {
+      // Assume 10% fee for business sellers
+      const feePercentage = 10;
+      const feeAmount = (price * feePercentage) / 100;
+      const perOrderDeduction = 0.3;
+      return (price - feeAmount - perOrderDeduction).toFixed(2);
+    }
+    if (sellerType === "Private") {
+      // Assume 10% fee for business sellers
+      const feePercentage = 12.8;
+      const feeAmount = (price * feePercentage) / 100;
+      const perOrderDeduction = 0.3;
+      return (price - feeAmount - perOrderDeduction).toFixed(2);
+    }
+    // No additional fee for private sellers
+    return price.toFixed(2);
+  };
+
   return (
     <div className="App">
       <div
@@ -243,77 +266,8 @@ function App() {
       </div>
       {averagePrice == null && (
         <div className="searchMainContainer">
-          <div className="searchInputContainer">
-            <input
-              placeholder="Search item"
-              className="searchInput"
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-          </div>
-          <div className="searchOptionsContainer">
-            {" "}
-            <div className="sliderMainContainer">
-              <h1 className="sliderTitleText">
-                Maximum amount of listings:{" "}
-                <span className="sliderTitleTextNumber">{sliderInput}</span>
-              </h1>
-              <div className="sliderContainer">
-                <h1 className="sliderRangeText">1</h1>
-                <input
-                  onChange={(e) => {
-                    setSliderInput(e.target.value);
-                  }}
-                  type="range"
-                  min="1"
-                  max="250"
-                  value={sliderInput}
-                  className="slider"
-                ></input>{" "}
-                <h1 className="sliderRangeText">250</h1>
-              </div>
-            </div>
-            <div className="checkBoxContainer">
-              <label className="radioInput">
-                <input
-                  type="radio"
-                  checked={selectedFormat === "buy-it-now"}
-                  onChange={() => setSelectedFormat("buy-it-now")}
-                />
-                Buy It Now
-              </label>
-              <label className="radioInput">
-                <input
-                  type="radio"
-                  checked={selectedFormat === "auction"}
-                  onChange={() => setSelectedFormat("auction")}
-                />
-                Auction
-              </label>
-              <label className="radioInput">
-                <input
-                  type="radio"
-                  checked={selectedFormat === "both"}
-                  onChange={() => setSelectedFormat("both")}
-                />
-                Both
-              </label>
-            </div>
-          </div>{" "}
-          <div className="buttonsContainer">
-            <button className="clearButton" onClick={handleClear}>
-              Clear
-            </button>
-            <button className="searchButton" onClick={handleSearch}>
-              Search
-            </button>
-          </div>
-        </div>
-      )}
-      {loading && <div className="loadingAnimation">Loading...</div>}
-      {averagePrice != null && (
-        <div className="resultsContainer">
-          <div className="searchAverageContainer">
-            <div className="searchMainContainer">
+          {!loading ? (
+            <React.Fragment>
               <div className="searchInputContainer">
                 <input
                   placeholder="Search item"
@@ -326,10 +280,8 @@ function App() {
                 <div className="sliderMainContainer">
                   <h1 className="sliderTitleText">
                     Maximum amount of listings:{" "}
-                    <span className="sliderTitleTextNumber">{sliderInput}</span>
                   </h1>
                   <div className="sliderContainer">
-                    <h1 className="sliderRangeText">1</h1>
                     <input
                       onChange={(e) => {
                         setSliderInput(e.target.value);
@@ -340,38 +292,64 @@ function App() {
                       value={sliderInput}
                       className="slider"
                     ></input>{" "}
-                    <h1 className="sliderRangeText">250</h1>
+                    <h1 className="sliderRangeText">{sliderInput}</h1>
                   </div>
-                </div>
-                <div className="checkBoxContainer">
-                  <label className="radioInput">
+                </div>{" "}
+                <div className="listing-type">
+                  <h5 className="switchFieldTitleText">Type of listing:</h5>
+                  <div className="switch-field">
                     <input
-                      className="radioInput"
                       type="radio"
+                      id="buy-it-now"
+                      name="format"
                       checked={selectedFormat === "buy-it-now"}
                       onChange={() => setSelectedFormat("buy-it-now")}
                     />
-                    Buy It Now
-                  </label>
-                  <label className="radioInput">
+                    <label htmlFor="buy-it-now">Buy It Now</label>
+
                     <input
-                      className="radioInput"
                       type="radio"
+                      id="auction"
+                      name="format"
                       checked={selectedFormat === "auction"}
                       onChange={() => setSelectedFormat("auction")}
                     />
-                    Auction
-                  </label>
-                  <label className="radioInput">
+                    <label htmlFor="auction">Auction</label>
+
                     <input
-                      className="radioInput"
                       type="radio"
+                      id="both"
+                      name="format"
                       checked={selectedFormat === "both"}
                       onChange={() => setSelectedFormat("both")}
                     />
-                    Both
-                  </label>
+                    <label htmlFor="both">Both</label>
+                  </div>
                 </div>{" "}
+                <div className="seller-type">
+                  <h5 className="switchFieldTitleText">
+                    What type of seller are you:
+                  </h5>
+                  <div className="switch-field-seller">
+                    <input
+                      type="radio"
+                      id="private"
+                      name="seller-type"
+                      checked={selectedSellerType === "Private"}
+                      onChange={() => setSelectedSellerType("Private")}
+                    />
+                    <label htmlFor="private">Private</label>
+
+                    <input
+                      type="radio"
+                      id="business"
+                      name="seller-type"
+                      checked={selectedSellerType === "Business"}
+                      onChange={() => setSelectedSellerType("Business")}
+                    />
+                    <label htmlFor="business">Business</label>
+                  </div>
+                </div>
               </div>{" "}
               <div className="buttonsContainer">
                 <button className="clearButton" onClick={handleClear}>
@@ -381,15 +359,146 @@ function App() {
                   Search
                 </button>
               </div>
+            </React.Fragment>
+          ) : (
+            <div class="lds-ellipsis">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {averagePrice != null && (
+        <div className="resultsContainer">
+          <div className="searchAverageContainer">
+            <div className="searchMainContainer">
+              {!loading ? (
+                <React.Fragment>
+                  <div className="searchInputContainer">
+                    <input
+                      value={searchInput}
+                      placeholder="Search item"
+                      className="searchInput"
+                      onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                  </div>
+                  <div className="searchOptionsContainer">
+                    {" "}
+                    <div className="sliderMainContainer">
+                      <h1 className="sliderTitleText">
+                        Maximum amount of listings:{" "}
+                      </h1>
+                      <div className="sliderContainer">
+                        <input
+                          onChange={(e) => {
+                            setSliderInput(e.target.value);
+                          }}
+                          type="range"
+                          min="1"
+                          max="250"
+                          value={sliderInput}
+                          className="slider"
+                        ></input>{" "}
+                        <h1 className="sliderRangeText">{sliderInput}</h1>
+                      </div>
+                    </div>{" "}
+                    <div className="listing-type">
+                      <h5 className="switchFieldTitleText">Type of listing:</h5>
+                      <div className="switch-field">
+                        <input
+                          type="radio"
+                          id="buy-it-now"
+                          name="format"
+                          checked={selectedFormat === "buy-it-now"}
+                          onChange={() => setSelectedFormat("buy-it-now")}
+                        />
+                        <label htmlFor="buy-it-now">Buy It Now</label>
+
+                        <input
+                          type="radio"
+                          id="auction"
+                          name="format"
+                          checked={selectedFormat === "auction"}
+                          onChange={() => setSelectedFormat("auction")}
+                        />
+                        <label htmlFor="auction">Auction</label>
+
+                        <input
+                          type="radio"
+                          id="both"
+                          name="format"
+                          checked={selectedFormat === "both"}
+                          onChange={() => setSelectedFormat("both")}
+                        />
+                        <label htmlFor="both">Both</label>
+                      </div>
+                    </div>{" "}
+                    <div className="seller-type">
+                      <h5 className="switchFieldTitleText">
+                        What type of seller are you:
+                      </h5>
+                      <div className="switch-field-seller">
+                        <input
+                          type="radio"
+                          id="private"
+                          name="seller-type"
+                          checked={selectedSellerType === "Private"}
+                          onChange={() => setSelectedSellerType("Private")}
+                        />
+                        <label htmlFor="private">Private</label>
+
+                        <input
+                          type="radio"
+                          id="business"
+                          name="seller-type"
+                          checked={selectedSellerType === "Business"}
+                          onChange={() => setSelectedSellerType("Business")}
+                        />
+                        <label htmlFor="business">Business</label>
+                      </div>
+                    </div>
+                  </div>{" "}
+                  <div className="buttonsContainer">
+                    <button className="clearButton" onClick={handleClear}>
+                      Clear
+                    </button>
+                    <button className="searchButton" onClick={handleSearch}>
+                      Search
+                    </button>
+                  </div>
+                </React.Fragment>
+              ) : (
+                <div class="lds-ellipsis">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              )}
             </div>
             <div className="averagePriceContainer">
               <h4 className="averagePriceIntroText">
-                The average price for '{searchInput}' based on the last{" "}
-                {listings.length} sold listings is:
+                The market value for '{searchInput}' based on the last{" "}
+                {listings.length} sold listings is around:
               </h4>
               <h1 className="averagePriceNumberText">
                 £{averagePrice ? averagePrice : 0}
               </h1>
+              <p className="averagePriceAfterFeesText">
+                {selectedSellerType === "Business"
+                  ? `Expected amount after fees (business seller):`
+                  : `Expected amount after fees (private seller):`}
+              </p>
+              <h3 className="averagePriceAfterFeesNumberText">
+                £
+                {calculatePriceAfterFees(
+                  parseFloat(averagePrice),
+                  selectedSellerType
+                )}
+              </h3>
             </div>
           </div>
           <div className="chartContainer">
@@ -413,7 +522,7 @@ function App() {
                     <div className="individualListingContainer">
                       <img
                         className="individualListingImage"
-                        src={listing.imageUrl || ebayListingExampleImage}
+                        src={listing.imageUrl}
                         alt={listing.title}
                       />
                       <div className="individualListingTextContainer">
